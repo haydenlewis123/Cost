@@ -540,7 +540,7 @@ select:-webkit-autofill {
   <strong>5 easy payments of $<span id="monthlyPayment">0</span></strong>
 </div>
 <p class="reimbursement-note">
-  Fully reimbursed by the Boston program.
+  Fully reimbursed by the Boston ADU Financial Assistance program.
 </p>
 
                 <ul class="services-list">
@@ -553,6 +553,32 @@ select:-webkit-autofill {
             <div class="card">
                 <h3>Construction Cost Estimate</h3>
                 <div class="cost-item"><div class="cost-label">General Contractor:</div><div class="cost-range" >$<span id="gcLow">0</span> - $<span id="gcHigh">0</span> / sqft</div></div>
+                <!-- Add after General Contractor price range -->
+<div class="cost-item" style="margin-bottom: 2rem;">
+  <div class="cost-label" style="font-size: 1.15rem; color: #ea2039; font-weight: bold;">
+    Monthly Payment with Boston ADU Financial Assistance Program
+  </div>
+  <div class="cost-value" id="monthlyLoanPaymentBoston" style="font-size: 2rem; color: #ea2039; font-weight: bold;">
+    $0
+  </div>
+</div>
+<div class="cost-item" style="margin-bottom: 0.5rem;">
+  <div class="cost-label" style="font-size: 0.95rem; color: #1d3557;">
+    Regular Monthly Payment(8% APR, 30 years)
+  </div>
+  <div class="cost-value" id="monthlyLoanPayment" style="font-size: 1.1rem; color: #114e80;">
+    $0
+  </div>
+</div>
+<div class="cost-item" style="margin-bottom: 0.5rem;">
+  <div class="cost-label" style="font-size: 0.95rem; color: #1d3557;">
+    Total Construction Price
+  </div>
+  <div class="cost-value" id="constructionTotal" style="font-size: 1.1rem; color: #114e80;">
+    $0
+  </div>
+</div>
+   
                 <p class="note" style="font-size: 0.8rem; margin-top: auto;">Note: This is a preliminary estimate. Final costs may vary based on site conditions, material selections, and contractor bids.</p>
             </div>
         </div>
@@ -727,7 +753,7 @@ select:-webkit-autofill {
     // 👇 FIX: Updated Step 5 Contact Submission Logic
     const contactForm = document.getElementById('contact-form');
     const submitButton = document.getElementById('submit-button');
-    const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzrXGKEk0GhexxJB8SvqONNFyAAwfJc4AddKrNaNc1LLtZguIkZacI-rU7L0rNaXNBD/exec';
+    const googleScriptUrl = 'https://script.google.com/macros/s/AKfycbzCtYecRtp214NcAysqEGLNIcgdpJ-8jScFPp5qEnsZVSFI1kC1gd3aXne0mrPPFGYZ/exec';
     
     if (contactForm) {
         contactForm.addEventListener('submit', function (e) {
@@ -760,41 +786,77 @@ select:-webkit-autofill {
             };
 
             // 3. Send data using the Fetch API
-            const formData = new FormData();
-            formData.append('data', JSON.stringify(payload));
+            // 3. Send data using the Fetch API
+// REPLACE your old fetch block with this one
 
-            fetch(googleScriptUrl, {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json()) // Assumes your script returns JSON
-            .then(data => {
-                console.log('Success:', data);
-                showStep(6); // Go to the next step on success
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while submitting your estimate. Please try again.');
-                // Re-enable the button if the submission fails
-                submitButton.disabled = false;
-                submitButton.textContent = 'Get My Estimate ✓';
-            });
+fetch(googleScriptUrl, {
+    method: 'POST',
+    body: JSON.stringify(payload), // Send the data as a string
+    mode: 'no-cors' // IMPORTANT: This bypasses the CORS error for this type of request
+})
+.then(res => {
+    // Because of 'no-cors', we can't read the response, but we know it was sent.
+    console.log('Successfully submitted to Google Script.');
+    showStep(6); // Assume success and move to the next step
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while submitting your estimate. Please try again.');
+    submitButton.disabled = false;
+    submitButton.textContent = 'Get My Estimate ✓';
+});
         });
     }
 
     // Step 6 estimate calculation
-    function fillEstimate() {
-        const fixedCost = 7500;
-        const payment = Math.round(fixedCost / 5);
-        document.getElementById("fixedCost").textContent = `$${fixedCost.toLocaleString()}`;
-        document.getElementById("monthlyPayment").textContent = payment.toLocaleString();
-        const aduType = JSON.parse(sessionStorage.getItem('adu_type'));
-        let gcRange = [188, 263]; // Default
-        if (aduType === "Garage Conversion") gcRange = [113, 188];
-        if (aduType === "Attached ADU") gcRange = [150, 225];
-        document.getElementById("gcLow").textContent = gcRange[0];
-        document.getElementById("gcHigh").textContent = gcRange[1];
+   function fillEstimate() {
+    // Display planning/engineering cost
+    const fixedCost = 7500;
+    document.getElementById("fixedCost").textContent = `$${fixedCost.toLocaleString()}`;
+    document.getElementById("monthlyPayment").textContent = Math.round(fixedCost / 5).toLocaleString();
+
+    // Get ADU type and size info
+    const aduType = JSON.parse(sessionStorage.getItem('adu_type'));
+    const aduDetails = JSON.parse(sessionStorage.getItem('aduDetails'));
+    let size = 550; // default small
+    let gcRange = [188, 263]; // default range
+
+    if (aduDetails.squareFootage === "Small") size = 550;
+    if (aduDetails.squareFootage === "Medium") size = 775;
+    if (aduDetails.squareFootage === "Large") size = 900;
+
+    if (aduType === "Garage Conversion") gcRange = [113, 188];
+    if (aduType === "Attached ADU") gcRange = [150, 225];
+
+    // Middle price per sqft
+    const gcMid = Math.round((gcRange[0] + gcRange[1]) / 2);
+
+    // Construction cost calculation
+    const constructionPrice = size * gcMid;
+    document.getElementById("gcLow").textContent = gcRange[0];
+    document.getElementById("gcHigh").textContent = gcRange[1];
+    document.getElementById("constructionTotal").textContent = `$${constructionPrice.toLocaleString()}`;
+
+    // Mortgage calculation setup
+    const loanAmount = constructionPrice;
+    const bostonLoanAmount = Math.max(loanAmount - 57500, 0);
+
+    const annualRate = 0.08;
+    const monthlyRate = annualRate / 12;
+    const months = 30 * 12;
+
+    function mortgage(P, r, n) {
+        return P * r / (1 - Math.pow(1 + r, -n));
     }
+
+    const monthlyPayment = mortgage(loanAmount, monthlyRate, months);
+    const bostonMonthlyPayment = mortgage(bostonLoanAmount, monthlyRate, months);
+
+    // Display results
+    document.getElementById("monthlyLoanPayment").textContent = `$${monthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+    document.getElementById("monthlyLoanPaymentBoston").textContent = `$${bostonMonthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+}
+    
 
     document.addEventListener('DOMContentLoaded', function() {
         showStep(1);
