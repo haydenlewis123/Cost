@@ -9,549 +9,487 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css" rel="stylesheet">
     <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet">
     <style>
-:root {
-    --primary-color: #114e80;
-    --accent-color: #ea2039;
-    --accent-color-alt: #ea2039;
-    --accent-color-dark: #ba1e2e;
-    --secondary-color: #1d3557;
-    --light-gray: #f1f3f5;
-    --gray-light: #f0f2f5;
-    --gray-border: #dee2e6;
-    --border-color: #dee2e6;
-    --card-color: #ffffff;
-    --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    --radius: 18px;
-    --font: 'Lato', sans-serif;
-    --subtext-color: #114e80;
-    --step-indicator: #6c757d;
-    --success-green: #059669;
-    --success-light: #ECFDF5;
-    --body-bg: #f9fafb;
-    --max-height-uniform: 700px;
-    --main-card-width: 950px;
-    --main-card-min-width: 800px;
-    --selected-bg: #fff5f5;
-    --selected-border: var(--accent-color);
-}
+        :root {
+            --primary-color: #114e80;
+            --accent-color: #ea2039;
+            --accent-color-alt: #ea2039;
+            --accent-color-dark: #ba1e2e;
+            --secondary-color: #1d3557;
+            --light-gray: #f1f3f5;
+            --gray-light: #f0f2f5;
+            --gray-border: #dee2e6;
+            --border-color: #dee2e6;
+            --card-color: #ffffff;
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --radius: 18px;
+            --font: 'Lato', sans-serif;
+            --subtext-color: #114e80;
+            --step-indicator: #6c757d;
+            --success-green: #059669;
+            --success-light: #ECFDF5;
+            --body-bg: #f9fafb;
+            --max-height-uniform: 700px;
+            --main-card-width: 950px;
+            --main-card-min-width: 800px;
+            --selected-bg: #fff5f5;
+            --selected-border: var(--accent-color);
+        }
 
-/* Base styles */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: var(--body-bg);
+            font-family: var(--font);
+            color: var(--primary-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
 
-body {
-    background: var(--body-bg);
-    font-family: var(--font);
-    color: var(--primary-color);
-    margin: 0;
-    padding: 0;
-    line-height: 1.5;
-    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
-}
+        /* Mapbox styles normalized */
+        .mapboxgl-ctrl-geocoder {
+            width: 100% !important;
+            max-width: 100%;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .mapboxgl-ctrl-geocoder--icon {
+            top: 50% !important;
+            left: 14px !important;
+            transform: translateY(-45%) !important;
+            width: 16px !important;
+            height: 16px !important;
+        }
+        .mapboxgl-ctrl-geocoder--icon svg {
+            width: 16px !important;
+            height: 16px !important;
+        }
+        .mapboxgl-ctrl-geocoder--input {
+            border: 1px solid var(--border-color) !important;
+            border-radius: 10px !important;
+            padding: 0.6rem 0.9rem 0.6rem 2.0rem !important;
+            font-size: 0.92rem;
+            font-family: var(--font);
+            color: var(--primary-color);
+            box-shadow: none !important;
+        }
+        .mapboxgl-ctrl-geocoder--icon,
+        .mapboxgl-ctrl-geocoder--icon-search {
+            top: 10px !important;
+            left: 10px !important;
+        }
 
-/* Mapbox styles normalized */
-.mapboxgl-ctrl-geocoder {
-    width: 100% !important;
-    max-width: 100%;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-.mapboxgl-ctrl-geocoder--icon {
-    top: 50% !important;
-    left: 14px !important;
-    transform: translateY(-45%) !important;
-    width: 16px !important;
-    height: 16px !important;
-}
-.mapboxgl-ctrl-geocoder--icon svg {
-    width: 16px !important;
-    height: 16px !important;
-}
-.mapboxgl-ctrl-geocoder--input {
-    border: 1px solid var(--border-color) !important;
-    border-radius: 10px !important;
-    padding: 0.6rem 0.9rem 0.6rem 2.0rem !important;
-    font-size: 0.92rem;
-    font-family: var(--font);
-    color: var(--primary-color);
-    box-shadow: none !important;
-}
-.mapboxgl-ctrl-geocoder--icon,
-.mapboxgl-ctrl-geocoder--icon-search {
-    top: 10px !important;
-    left: 10px !important;
-}
+        /* Container styles */
+        .adu-step-container.active {
+            display: flex;
+        }
+        .adu-main-card {
+            width: 100%;
+            max-width: var(--main-card-width);
+            min-width: var(--main-card-min-width);
+            background: var(--card-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-top: 1rem;
+            animation: fadeIn 0.5s ease-out forwards;
+            min-height: var(--max-height-uniform);
+            max-height: var(--max-height-uniform);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
-/* Container styles */
-.adu-step-container {
-    display: none;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding: 1rem;
-}
-.adu-step-container.active {
-    display: flex;
-}
-.adu-main-card {
-    width: 100%;
-    max-width: var(--main-card-width);
-    min-width: var(--main-card-min-width);
-    background: var(--card-color);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 2rem;
-    margin-top: 1rem;
-    animation: fadeIn 0.5s ease-out forwards;
-    min-height: var(--max-height-uniform);
-    max-height: var(--max-height-uniform);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
+        /* Progress bar styles */
+        .progress-bar-wrap { margin-bottom: 1.5rem; }
+        .progress-label {
+            font-size: 0.93rem;
+            font-weight: 600;
+            color: #114e80;
+            letter-spacing: 0.3px;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-inner {
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.4s;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .progress-percent {
+            font-size: 0.85rem;
+            color: var(--step-indicator);
+            margin-left: 8px;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
+        /* Typography */
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--primary-color);
+        }
+        .subtitle {
+            color: var(--subtext-color);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .section-heading {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
 
-/* Progress bar styles */
-.progress-bar-wrap {
-    margin-bottom: 1.5rem;
-}
-.progress-label {
-    font-size: 0.93rem;
-    font-weight: 600;
-    color: #114e80;
-    letter-spacing: 0.3px;
-    margin-bottom: 0.5rem;
-}
-.progress-bar {
-    width: 100%;
-    height: 5px;
-    background: #e9ecef;
-    border-radius: 3px;
-    overflow: hidden;
-    position: relative;
-}
-.progress-bar-inner {
-    height: 100%;
-    background: var(--accent-color);
-    border-radius: 4px;
-    width: 0%;
-    transition: width 0.4s;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-.progress-percent {
-    font-size: 0.85rem;
-    color: var(--step-indicator);
-    margin-left: 8px;
-}
+        /* Form elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .full-width { grid-column: 1 / -1; }
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #114e80;
+            font-size: 0.86rem;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border-radius: 9px;
+            border: 1px solid var(--border-color);
+            font-size: 0.92rem;
+            font-family: var(--font);
+            background-color: #fff;
+            color: #114e80;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        select option { color: #114e80; }
+        input.error, select.error { border-color: var(--accent-color); }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(232, 48, 56, 0.11);
+        }
+        input::placeholder, textarea::placeholder { color: #adb5bd; }
 
-/* Typography */
-h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: var(--primary-color);
-}
-.subtitle {
-    color: var(--subtext-color);
-    margin-bottom: 2rem;
-    font-size: 1rem;
-    line-height: 1.4;
-}
-.section-heading {
-    font-weight: 600;
-    font-size: 1.1rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-    margin-top: 1.5rem;
-}
+        /* Choice grid styles */
+        .choice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .choice-option {
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+        .choice-option:hover { border-color: var(--accent-color); }
+        .choice-option.selected {
+            background-color: var(--selected-bg);
+            border: 2px solid var(--selected-border);
+        }
+        .checkmark-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 18px;
+            height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+        .choice-option.selected .checkmark-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .house-icon {
+            display: block;
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 0.75rem;
+            fill: none;
+            stroke: var(--primary-color);
+            stroke-width: 2px;
+        }
+        .choice-option.selected .house-icon { stroke: var(--accent-color); }
+        .house-small { transform: scale(0.9); }
+        .house-medium { transform: scale(1.05); }
+        .house-large { transform: scale(1.2); }
 
-/* Form elements */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-.form-group {
-    margin-bottom: 1rem;
-}
-.full-width {
-    grid-column: 1 / -1;
-}
-label {
-    font-weight: 500;
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #114e80;
-    font-size: 0.86rem;
-}
-input, select, textarea {
-    width: 100%;
-    padding: 0.6rem 0.75rem;
-    border-radius: 9px;
-    border: 1px solid var(--border-color);
-    font-size: 0.92rem;
-    font-family: var(--font);
-    background-color: #fff;
-    color: #114e80;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-select option {
-    color: #114e80;
-}
-input.error, select.error {
-    border-color: var(--accent-color);
-}
-input:focus, select:focus, textarea:focus {
-    border-color: var(--accent-color);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(232, 48, 56, 0.11);
-}
-input::placeholder, textarea::placeholder {
-    color: #adb5bd;
-}
+        /* Button styles */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 2rem;
+        }
+        .btn {
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.65rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .btn-back {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+        .btn-back:hover { background-color: var(--gray-light); }
+        .btn-continue {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-continue:hover {
+            background-color: var(--accent-color-dark);
+            transform: translateY(-2px);
+        }
+        .btn-continue:disabled {
+            background-color: #FECACA;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-/* Choice grid styles - matching the screenshot */
-.choice-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
 
-.choice-option {
-    position: relative;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background-color: white;
-}
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .option {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option:hover { border-color: var(--accent-color); }
+        .option.active, .option.selected {
+            border-color: var(--accent-color);
+            background: var(--selected-bg);
+        }
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.99rem;
+        }
+        .option-desc, .option-subtext {
+            color: #666;
+            font-size: 0.85rem;
+        }
 
-.choice-option:hover {
-    border-color: var(--accent-color);
-}
+        .estimate-section {
+            display: flex;
+            flex-direction: row;
+            gap: 2.5rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            align-items: stretch;
+            width: 100%;
+        }
+        .card {
+            flex: 1 1 0px;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+            min-width: 310px;
+            max-width: 430px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 100%;
+        }
+        .card h3 {
+            margin: 0 0 0.75rem;
+            font-size: 0.97rem;
+        }
+        .cost-item { margin-bottom: 0.75rem; }
+        .cost-label {
+            font-size: 0.81rem;
+            color: var(--secondary-color);
+        }
+        .cost-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0.25rem 0;
+        }
+        .payment-plan {
+            background-color: var(--selected-bg);
+            border: 1px solid #fee2e2;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.87rem;
+            text-align: center;
+            margin: 0.75rem 0;
+        }
+        .reimbursement-note {
+            font-size: 0.84rem;
+            color: var(--success-green);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        .payment-plan strong { font-size: 0.95rem; }
+        .cost-range {
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+        .services-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0;
+        }
+        .services-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
 
-.choice-option.selected {
-    background-color: var(--selected-bg);
-    border: 2px solid var(--selected-border);
-}
+        .cta-section {
+            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+        }
+        .cta-section h2 {
+            font-size: 1.04rem;
+            margin-bottom: 0.5rem;
+        }
+        .cta-section p {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        .btn-consult {
+            background-color: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-feasibility {
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            text-decoration: none;
+            display: inline-block;
+        }
 
-.checkmark-icon {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 18px;
-    height: 18px;
-    background-color: var(--accent-color);
-    border-radius: 50%;
-    color: white;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.2s ease;
-}
+        /* Responsive styles */
+        @media (max-width: 1200px) {
+            .adu-main-card {
+                max-width: 95vw;
+                min-width: unset;
+                padding: 1.5rem;
+            }
+            .estimate-section {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            .card {
+                max-width: none;
+            }
+        }
 
-.choice-option.selected .checkmark-icon {
-    opacity: 1;
-    transform: scale(1);
-}
+        @media (max-width: 900px) {
+            .adu-main-card {
+                padding: 1.25rem;
+                max-height: none;
+            }
+        }
 
-/* House icon styles */
-.house-icon {
-    display: block;
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 0.75rem;
-    fill: none;
-    stroke: var(--primary-color);
-    stroke-width: 2px;
-}
-
-.choice-option.selected .house-icon {
-    stroke: var(--accent-color);
-}
-
-.house-small {
-    transform: scale(0.9);
-}
-
-.house-medium {
-    transform: scale(1.05);
-}
-
-.house-large {
-    transform: scale(1.2);
-}
-
-/* Button styles */
-.button-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: auto;
-    padding-top: 2rem;
-}
-
-.btn {
-    font-family: var(--font);
-    font-weight: 600;
-    font-size: 0.95rem;
-    padding: 0.65rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-}
-
-.btn-back {
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 1px solid var(--border-color);
-}
-
-.btn-back:hover {
-    background-color: var(--gray-light);
-}
-
-.btn-continue {
-    background-color: var(--accent-color);
-    color: white;
-}
-
-.btn-continue:hover {
-    background-color: var(--accent-color-dark);
-    transform: translateY(-2px);
-}
-
-.btn-continue:disabled {
-    background-color: #FECACA;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* Form container */
-.form-container {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-/* Option styles */
-.options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-.option {
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    padding: 1rem;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.option:hover {
-    border-color: var(--accent-color);
-}
-.option.active, .option.selected {
-    border-color: var(--accent-color);
-    background: var(--selected-bg);
-}
-.option-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    font-size: 0.99rem;
-}
-.option-desc, .option-subtext {
-    color: #666;
-    font-size: 0.85rem;
-}
-
-/* Estimate section */
-.estimate-section {
-    display: flex;
-    flex-direction: row;
-    gap: 2.5rem;
-    margin-top: 1.5rem;
-    justify-content: center;
-    align-items: stretch;
-    width: 100%;
-}
-.card {
-    flex: 1 1 0px;
-    background-color: var(--card-color);
-    border: 1px solid var(--border-color);
-    border-radius: 9px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.04);
-    min-width: 310px;
-    max-width: 430px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 100%;
-}
-.card h3 {
-    margin: 0 0 0.75rem;
-    font-size: 0.97rem;
-}
-.cost-item {
-    margin-bottom: 0.75rem;
-}
-.cost-label {
-    font-size: 0.81rem;
-    color: var(--secondary-color);
-}
-.cost-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0.25rem 0;
-}
-.payment-plan {
-    background-color: var(--selected-bg);
-    border: 1px solid #fee2e2;
-    color: #991b1b;
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-size: 0.87rem;
-    text-align: center;
-    margin: 0.75rem 0;
-}
-.reimbursement-note {
-    font-size: 0.84rem;
-    color: var(--success-green);
-    margin-top: 0.5rem;
-    text-align: center;
-}
-.payment-plan strong {
-    font-size: 0.95rem;
-}
-.cost-range {
-    font-weight: 600;
-    font-size: 0.92rem;
-}
-.services-list {
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0 0;
-}
-.services-list li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-}
-
-/* CTA sections */
-.cta-section {
-    border-top: 1px solid var(--border-color);
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-}
-.cta-section h2 {
-    font-size: 1.04rem;
-    margin-bottom: 0.5rem;
-}
-.cta-section p {
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
-}
-.btn-consult {
-    background-color: var(--accent-color);
-    color: #fff;
-    border-color: var(--accent-color);
-    text-decoration: none;
-    display: inline-block;
-}
-.btn-feasibility {
-    background-color: transparent;
-    color: var(--accent-color);
-    border: 1px solid var(--accent-color);
-    text-decoration: none;
-    display: inline-block;
-}
-
-/* Responsive styles */
-@media (max-width: 1200px) {
-    .adu-main-card {
-        max-width: 95vw;
-        min-width: unset;
-        padding: 1.5rem;
-    }
-    .estimate-section {
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    .card {
-        max-width: none;
-    }
-}
-
-@media (max-width: 900px) {
-    .adu-main-card {
-        padding: 1.25rem;
-        max-height: none;
-    }
-}
-
-@media (max-width: 600px) {
-    .adu-step-container {
-        padding: 0.5rem;
-    }
-    .form-grid, .options, .choice-grid {
-        grid-template-columns: 1fr;
-    }
-    h1 {
-        font-size: 1.25rem;
-    }
-    .input-row {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    .button-container {
-        padding-top: 1.5rem;
-    }
-    /* --- ADD THIS MOBILE STACKING FIX --- */
-    .estimate-section,
-    .adu-main-card,
-    .adu-step-container {
-        display: block !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        overflow: visible !important;
-        position: static !important;
-    }
-
-    .card {
-        display: block !important;
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-        margin: 0 0 1rem 0 !important;
-        box-sizing: border-box !important;
-        position: static !important;
-        float: none !important;
-        clear: both !important;
-    }
-    /* --- END MOBILE STACKING FIX --- */
-}
-</style>
+        @media (max-width: 600px) {
+            .adu-step-container {
+                padding: 0.5rem;
+            }
+            .form-grid, .options, .choice-grid {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            .input-row {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .button-container {
+                padding-top: 1.5rem;
+            }
+            /* --- MOBILE STACKING FIX --- */
+            .estimate-section,
+            .adu-main-card {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                overflow: visible !important;
+                position: static !important;
+            }
+            .card {
+                display: block !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                margin: 0 0 1rem 0 !important;
+                box-sizing: border-box !important;
+                position: static !important;
+                float: none !important;
+                clear: both !important;
+            }
+            /* --- END MOBILE STACKING FIX --- */
+        }
+    </style>
 </head>
 
 <body>
